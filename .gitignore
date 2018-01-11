@@ -96,7 +96,5 @@ ENV/
 /site
 
 # mypy
-.mypy_cache/
-
-MonkeyResult/
 .vscode/
+.idea/
