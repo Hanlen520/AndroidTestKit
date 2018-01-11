@@ -16,8 +16,8 @@ c = 'adb pull %s %s' % (remote_obj, local_obj)
 
 os.system(a)
 # print 'Screen capture saved to {}'.format(remote_obj)
-print 'Pull picture to your computer ...'
+print('Pull picture to your computer ...')
 os.system(c)
-print 'Screen capture pull to: "{}"'.format(local_obj)
+print('Screen capture pull to: "{}"'.format(local_obj))
 
-print 'OK.'
+print('OK.')
