@@ -12,7 +12,7 @@ python xxx.py
 ```
 
 ## Author
-pyecharts is developed and maintained by Kevin.Zhang ([testcn@vip.qq.com](testcn@vip.qq.com))
+AndroidTestKit is developed and maintained by Kevin.Zhang ([testcn@vip.qq.com](testcn@vip.qq.com))
 
 ## License
 AndroidTestKit is released under the MIT License. See LICENSE for more information.
