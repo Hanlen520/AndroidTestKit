@@ -15,31 +15,16 @@ os.mkdir(local_path)
 # 指定log name获取log,如:main, radio, system, event
 def getlogs(logname):
     if logname is 'default':
-        cmd = 'adb shell logcat '
+        cmd = 'adb shell logcat -d'
         print('Getting <default> log ......')
     else:
-        cmd = 'adb shell logcat -v time -b {}'.format(logname)
+        cmd = 'adb shell logcat -d -v time -b {}'.format(logname)
         print('Getting <{}> log ......'.format(logname))
-    lst = []
+    # lst = []
     log = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT)
-
-    # 结束以时间判断
-    endtime = getandroidtime()
-    print('Endtime:', endtime)
-    # 逐行读取log,并放到列表lst中
-    while True:
-        buff = str(log.stdout.readline(), encoding='utf-8')
-        nowtime = buff[0:14]
-        lst.append(buff)
-        # 结束判断
-        if nowtime is '':
-            print('Nothing in the buffer?')
-            break
-        elif nowtime > endtime:
-            # print(nowtime)
-            break
-    return lst
+    data = log.stdout.readlines()  # 读取结果为一个列表，其中默认元素为字节类型
+    return data
 
 
 # 获取内核log（也叫串口log、Kernel log）
@@ -58,6 +43,8 @@ def get_anr_log():
 # 获取bugreport log
 def getbugreport():
     print('Getting <bugreport> log ......', end=' ')
+    # Android 7.x之后可以使用"adb bugreport +path"导出zip包，但会与早期Android版本不兼容
+    # 因此暂时不考虑使用zip包方式导出Bugreport
     cmd = 'adb shell bugreport > {}/bugreport.txt'.format(local_path)
     os.system(cmd)
 
@@ -68,38 +55,15 @@ def savelog(filename, context, path):
     fullname = path + '/' + filename + '.log'
     f = open(fullname, 'w+', buffering=-1)
     for line in context:
-        f.write(line)
+        f.write(str(line, encoding='utf-8'))
     f.close()
     print('done!')
-
-
-# 获取Android系统时间
-def getandroidtime():
-    # 获取系统时间戳的命令
-    cmd = 'adb shell date +"%s"'
-    # print(cmd)
-    t = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-    androidlocaltime = t.stdout.readline().strip()
-    androidlocaltime = str(androidlocaltime, encoding='utf-8')
-    # 将时间戳转化成指定时间格式
-    SysTime = time.strftime(
-        '%m-%d %H:%M:%S', time.localtime(int(androidlocaltime)))
-    return SysTime
-
-
-# 获取Android版本号
-def getandroidbuild():
-    cmd = 'adb shell getprop ro.build.version.release'
-    bulid = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
-    bulidversion = str(bulid.stdout.read().strip(), encoding='utf-8')
-    return bulidversion
 
 
 def main():
     os.system('adb wait-for-device')
     loglst = ['main', 'system', 'radio', 'events', 'default']
+    # loglst = ['system']
     for log in loglst:
         tar = getlogs(log)
         savelog(filename=log, context=tar, path=local_path)
