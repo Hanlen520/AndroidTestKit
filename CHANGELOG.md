@@ -1,5 +1,19 @@
 # Version log
 
+* ### version 0.0.3 - 2018.01.16
+
+    #### Added
+    * 无
+
+    #### Changed
+    * 使用logcat的-d参数，替代使用时间戳的方式判断logcat结束标志
+
+    #### Fixed
+    * 无
+
+    #### Removed
+    * 无
+
 * ### version 0.0.2 - 2018.01.11
 
     #### Added
