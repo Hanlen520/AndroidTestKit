@@ -55,15 +55,16 @@ def savelog(filename, context, path):
     fullname = path + '/' + filename + '.log'
     f = open(fullname, 'w+', buffering=-1)
     for line in context:
-        f.write(str(line, encoding='utf-8'))
+        line = str(line, encoding='utf-8')
+        f.write(line)
     f.close()
     print('done!')
 
 
 def main():
     os.system('adb wait-for-device')
+    os.system('adb root')
     loglst = ['main', 'system', 'radio', 'events', 'default']
-    # loglst = ['system']
     for log in loglst:
         tar = getlogs(log)
         savelog(filename=log, context=tar, path=local_path)

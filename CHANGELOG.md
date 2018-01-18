@@ -1,4 +1,17 @@
 # Version log
+* ### version 0.0.4 - 2018.01.18
+
+    #### Added
+    * 增加获取adb root权限
+
+    #### Changed
+    * 无
+
+    #### Fixed
+    * 解决在Windows平台上运行时报错（UnicodeEncodeError）
+
+    #### Removed
+    * 无
 
 * ### version 0.0.3 - 2018.01.16
 
