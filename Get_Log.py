@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import time
+import codecs
 
 localtime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
 local_path = sys.path[0] + "/" + localtime
@@ -20,7 +21,6 @@ def getlogs(logname):
     else:
         cmd = 'adb shell logcat -d -v time -b {}'.format(logname)
         print('Getting <{}> log ......'.format(logname))
-    # lst = []
     log = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT)
     data = log.stdout.readlines()  # 读取结果为一个列表，其中默认元素为字节类型
@@ -53,7 +53,7 @@ def getbugreport():
 def savelog(filename, context, path):
     print('start save [{}] log ......'.format(filename))
     fullname = path + '/' + filename + '.log'
-    f = open(fullname, 'w+', buffering=-1)
+    f = codecs.open(fullname, 'w', 'utf-8')
     for line in context:
         line = str(line, encoding='utf-8')
         f.write(line)
