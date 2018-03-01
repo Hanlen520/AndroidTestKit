@@ -20,25 +20,30 @@ def get_pkg_path(x):
         print("There were some errors")
     # 处理数据，将结果中的包名取出，并去掉换行符，因返回数据只有一行所以读取时只读一行
     # 只使用readline
-    pkg_path = pkg.stdout.readline().split(':')[1].strip()
+    path = str(pkg.stdout.readline(), "utf-8")
+    pkg_path = path.split(':')[1].strip()
     print('Package path is :', pkg_path)
     # 返回一个列表
     return pkg_path
 
 
 # 通过adb shell pm list packages获取设备中的所有包名
-def get_pkg_list():
-    cmd = ['adb', 'shell', 'pm', 'list', 'packages']
-    pkg_list = subprocess.Popen(
+def get_pkg_list(keyword):
+    if keyword == '':
+        cmd = ['adb', 'shell', 'pm list package']
+    else:
+        cmd = ['adb', 'shell', 'pm list package | grep {}'.format(keyword)]
+    get_pkg_info = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     # 等待进程退出
-    if pkg_list.wait() != 0:
-        print("There were some errors")
+    # if pkg_list.wait() != 0:
+    #     print("There were some errors")
     # 读取所有数据
-    pkg = pkg_list.stdout.readlines()
+    pkgs = get_pkg_info.stdout.readlines()
     # 定义一个空列表，将原始数据中的"package:"和换行符去除后放入此列表。
     pkg_list = []
-    for name in pkg:
+    for name in pkgs:
+        name = str(name, 'utf-8')
         pkg_name = name.split(':')[1].strip()
         pkg_list.append(pkg_name)
     return pkg_list
@@ -52,13 +57,7 @@ def pull_apk(pkg_name):
     local_name = sys.path[0] + '/' + pkg_name + '.apk'
     # 生成最终adb命令，并执行adb pull命令
     pull_cmd = ['adb', 'pull', pkg_path, local_name]
-    pull = subprocess.Popen(
-        pull_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    wait = pull.wait()
-    if wait != 0:
-        print("There were some errors")
-    else:
-        print("Pull apk was done.")
+    pull = subprocess.check_call(pull_cmd)
 
 
 if __name__ == '__main__':
@@ -66,14 +65,20 @@ if __name__ == '__main__':
     os.system('adb root')
     os.system('adb wait-for-device')
     print('Device is fond.')
-    pkg_list = get_pkg_list()
+    # 输入一个包名中可能的关键字，可以方便过滤一部分应用
+    keyword = input('Enter a "keyword" for package name: ')
+    pkg_list = get_pkg_list(keyword)
+
     for m, n in enumerate(pkg_list):
         print("{id} --- {pkgname}".format(id=m, pkgname=n))
-    r = eval(input('Enter a ID for pakage: '))
+    r = input('Enter a ID(number) for pakage: ')
+    while not r.isdigit():
+        print('You enter in is not a number.')
+        r = input('Enter a ID(number) for pakage: ')
+    r = int(r)
+    if r < len(pkg_list):
+        print(r, pkg_list[r])
     try:
-        num = int(r)
-        if num <= len(pkg_list):
-            print(num, pkg_list[num])
-            pull_apk(pkg_list[num])
-    except:
-        print('Try again and enter a number.')
+        pull_apk(pkg_list[r])
+    except Exception as e:
+        print(Exception, e, 'Try again and enter a number.')
