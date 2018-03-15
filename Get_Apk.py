@@ -57,7 +57,7 @@ def pull_apk(pkg_name):
     local_name = sys.path[0] + '/' + pkg_name + '.apk'
     # 生成最终adb命令，并执行adb pull命令
     pull_cmd = ['adb', 'pull', pkg_path, local_name]
-    pull = subprocess.check_call(pull_cmd)
+    subprocess.check_call(pull_cmd)
 
 
 if __name__ == '__main__':
@@ -68,7 +68,6 @@ if __name__ == '__main__':
     # 输入一个包名中可能的关键字，可以方便过滤一部分应用
     keyword = input('Enter a "keyword" for package name: ')
     pkg_list = get_pkg_list(keyword)
-
     for m, n in enumerate(pkg_list):
         print("{id} --- {pkgname}".format(id=m, pkgname=n))
     r = input('Enter a ID(number) for pakage: ')
