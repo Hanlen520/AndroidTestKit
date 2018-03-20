@@ -65,7 +65,7 @@ def get_dmesg_log():
 # 获取ANR log
 def get_anr_log():
     logger.info('Getting for <ANR> log ......')
-    cmd = 'adb pull /data/anr/traces.txt {}/'.format(local_path)
+    cmd = 'adb pull /data/anr/ {}/'.format(local_path)
     os.system(cmd)
 
 
