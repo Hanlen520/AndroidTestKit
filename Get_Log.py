@@ -44,9 +44,9 @@ os.mkdir(local_path)
 
 
 def getlogs(logname):
-    if logname is 'default':
+    if logname is 'logcat':
         cmd = 'adb shell logcat -d'
-        logger.info('Getting <default> log ......')
+        logger.info('Getting <logcat> log ......')
     else:
         cmd = 'adb shell logcat -d -v time -b {}'.format(logname)
         logger.info('Getting <{}> log ......'.format(logname))
@@ -98,7 +98,7 @@ def savelog(filename, context, path):
 def main():
     os.system('adb wait-for-device')
     os.system('adb root')
-    loglst = ['main', 'system', 'radio', 'events', 'default']
+    loglst = ['main', 'system', 'radio', 'events', 'logcat']
     for log in loglst:
         tar = getlogs(log)
         savelog(filename=log, context=tar, path=local_path)
