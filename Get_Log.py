@@ -17,7 +17,7 @@ py_ver_info = sys.version_info.major
 logger = logging.getLogger('GETLOG')
 logger.setLevel(logging.DEBUG)
 
-# # 创建一个handler，用于写入日志文件
+# # 创建一个handler，用于写入日志文件，默认保存在同级目录下
 fh = logging.FileHandler('Reports.log')
 fh.setLevel(logging.DEBUG)
 
@@ -41,8 +41,6 @@ os.mkdir(local_path)
 
 
 # 指定log name获取log,如:main, radio, system, event
-
-
 def getlogs(logname):
     if logname is 'logcat':
         cmd = 'adb shell logcat -d'
