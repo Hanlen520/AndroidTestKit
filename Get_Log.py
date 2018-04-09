@@ -11,7 +11,6 @@ import logging
 
 # 获取Python主版本号，int型
 py_ver_info = sys.version_info.major
-# TODO(Kevin): loggging 没有正常起作用
 # -------------------------------*logger*-------------------------------
 # 创建一个logger
 logger = logging.getLogger('GETLOG')
