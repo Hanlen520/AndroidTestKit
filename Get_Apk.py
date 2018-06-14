@@ -81,8 +81,12 @@ def get_pkg_list(keyword):
 def pull_apk(pkg_name):
     # 根据包名获取apk路径
     pkg_path = get_pkg_path(pkg_name)
+    # 本地保存apk路径
+    local_path = sys.path[0] + '/apk/'
+    # 创建目录
+    os.makedirs(local_path)
     # 定义拖出后的本地路径和名称，这里以包名进行命名
-    local_name = sys.path[0] + '/' + pkg_name + '.apk'
+    local_name = local_path + pkg_name + '.apk'
     # 生成最终adb命令，并执行adb pull命令
     pull_cmd = ['adb', 'pull', pkg_path, local_name]
     subprocess.check_call(pull_cmd)
