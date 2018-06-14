@@ -2,7 +2,16 @@
 * ### version 0.1.0 - 2018.06.14
     1. 改变了获取log的方式，避免在某种情况下因字符问题导致的log获取失败的问题
     2. 现在获取的apk会统一放到apk文件夹中
-    
+
+* ### version 0.0.5 - 2018.04.10
+
+    * get log和get apk都已兼容Python2、Python3
+    * 使用logging代替print输出控制流
+    * 获取apk脚本在关键字没有任何匹配时可以循环输入，不必重新运行脚本
+
+    #### Removed
+    * 无
+
 * ### version 0.0.4 - 2018.01.18
 
     #### Added
