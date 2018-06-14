@@ -35,22 +35,26 @@ logger.addHandler(ch)
 # -------------------------------*logger*-------------------------------
 
 localtime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-local_path = sys.path[0] + "/" + localtime
-os.mkdir(local_path)
+local_path = sys.path[0] + "/log/" + localtime
+os.makedirs(local_path)
 
 
 # 指定log name获取log,如:main, radio, system, event
 def getlogs(logname):
     if logname is 'logcat':
-        cmd = 'adb shell logcat -d'
+        os.system('adb shell "rm /sdcard/logcat.log"')
+        cmd = 'adb shell "logcat -d >/sdcard/logcat.log"'
         logger.info('Getting <logcat> log ......')
     else:
-        cmd = 'adb shell logcat -d -v time -b {}'.format(logname)
+        cmd = 'adb shell "logcat -d -v time -b {} > /sdcard/{}.log"'.format(
+            logname, logname)
         logger.info('Getting <{}> log ......'.format(logname))
-    log = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
-    data = log.stdout.readlines()  # 读取结果为一个列表，其中默认元素为字节类型
-    return data
+    # 移除旧的mainlog
+    os.system('adb shell "rm /sdcard/{}.log"'.format(logname))
+    # 保存log到文件
+    os.system(cmd)
+    # 将log文件取出到本地
+    os.system('adb pull /sdcard/{}.log {}'.format(logname, local_path))
 
 
 # 获取内核log（也叫串口log、Kernel log）
@@ -75,30 +79,12 @@ def getbugreport():
     os.system(cmd)
 
 
-# 保存log,context为获取到的log(list类型)
-def savelog(filename, context, path):
-    logger.info('start save [{}] log ......'.format(filename))
-    fullname = path + '/' + filename + '.log'
-    if py_ver_info == 3:
-        f = codecs.open(fullname, 'w', 'utf-8')
-        for line in context:
-            line = str(line, encoding='utf-8')
-            f.write(line)
-    else:
-        f = open(fullname, 'w')
-        for line in context:
-            f.write(line)
-    f.close()
-    logger.info('done!')
-
-
 def main():
     os.system('adb wait-for-device')
     os.system('adb root')
     loglst = ['main', 'system', 'radio', 'events', 'logcat']
     for log in loglst:
-        tar = getlogs(log)
-        savelog(filename=log, context=tar, path=local_path)
+        getlogs(log)
     if get_dmesg_log() != 0:
         logger.info('done!')
     # 获取ANR log
