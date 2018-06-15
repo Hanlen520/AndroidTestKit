@@ -98,3 +98,5 @@ ENV/
 # mypy
 .vscode/
 .idea/
+apk/
+log/
