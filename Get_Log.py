@@ -49,9 +49,7 @@ def getlogs(logname):
         cmd = 'adb shell "logcat -d -v time -b {} > /sdcard/{}.log"'.format(
             logname, logname)
         logger.info('Getting <{}> log ......'.format(logname))
-    # 移除旧的mainlog
-    os.system('adb shell "rm /sdcard/{}.log"'.format(logname))
-    # 保存log到文件
+    # 保存log到文件（如果文件存在会直接覆盖）
     os.system(cmd)
     # 将log文件取出到本地
     os.system('adb pull /sdcard/{}.log {}'.format(logname, local_path))
@@ -82,7 +80,8 @@ def getbugreport():
 def main():
     os.system('adb wait-for-device')
     os.system('adb root')
-    loglst = ['main', 'system', 'radio', 'events', 'logcat']
+    # 获取的logcat及其子类log
+    loglst = ['logcat', 'system', 'radio', 'events', 'main']
     for log in loglst:
         getlogs(log)
     if get_dmesg_log() != 0:
