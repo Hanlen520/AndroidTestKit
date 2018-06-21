@@ -37,8 +37,11 @@ local_path = sys.path[0] + "/log/" + localtime
 os.makedirs(local_path)
 
 
-# 指定log name获取log,如:main, radio, system, event
 def getlogs(logname):
+    '''
+    # 指定log name获取log,如:main, radio, system, event
+    :param logname: logcat的子log模块，如-b main, -b radio等
+    '''
     if logname is 'logcat':
         os.system('adb shell "rm /sdcard/logcat.log"')
         cmd = 'adb shell "logcat -d >/sdcard/logcat.log"'
@@ -53,14 +56,18 @@ def getlogs(logname):
     os.system('adb pull /sdcard/{}.log {}'.format(logname, local_path))
 
 
-# 获取内核log（也叫串口log、Kernel log）
 def get_dmesg_log():
+    '''
+    获取内核log（也叫串口log、Kernel log），并写入到指定文件中。
+    '''
     logger.info('Getting for <Kernel> log ......')
     os.system('adb shell dmesg > {}/Kernel.txt'.format(local_path))
 
 
-# 获取ANR log
 def get_anr_log():
+    '''
+    获取ANR log，将/data/anr目录下的所有文件都pull到指定目录。
+    '''
     logger.info('Getting for <ANR> log ......')
     cmd = 'adb pull /data/anr/ {}/'.format(local_path)
     os.system(cmd)
@@ -78,6 +85,9 @@ def getbugreport():
 
 
 def main():
+    '''
+    执行log获取
+    '''
     os.system('adb wait-for-device')
     os.system('adb root')
     # 获取的logcat及其子类log
