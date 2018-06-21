@@ -3,10 +3,8 @@
 # E-Mail: testcn@vip.qq.com
 
 import os
-import subprocess
 import sys
 import time
-import codecs
 import logging
 
 # 获取Python主版本号，int型
@@ -68,10 +66,12 @@ def get_anr_log():
     os.system(cmd)
 
 
-# 获取bugreport log
 def getbugreport():
+    '''
+    获取bugreport log
+    Android 7.x之后可以使用"adb bugreport +path"导出zip包，但会与早期Android版本不兼容
+    '''
     logger.info('Getting <bugreport> log ......')
-    # Android 7.x之后可以使用"adb bugreport +path"导出zip包，但会与早期Android版本不兼容
     # 因此暂时不考虑使用zip包方式导出Bugreport
     cmd = 'adb shell bugreport > {}/bugreport.txt'.format(local_path)
     os.system(cmd)
@@ -92,7 +92,7 @@ def main():
     # 获取bugreport
     if getbugreport() != 0:
         logger.info('done!')
-    logger.info('Has been saved to [{}]'.format(local_path))
+    logger.info('Has been saved to [%s]'% local_path)
 
 
 if __name__ == '__main__':
