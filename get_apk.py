@@ -115,12 +115,12 @@ if __name__ == '__main__':
     # 循环判断输入ID规则
     while True:
         logger.info('You enter in is not a number.')
-        # r = input('Enter a ID(number) for pakage: ')
+        # r = input('Enter a ID(number) for package: ')
         # 判断输入是否为数字，如果不是数字则跳出本次循环
         if py_ver_info == 3:
-            r = input('Enter a ID(number) for pakage: ')
+            r = input('Enter a ID(number) for package: ')
         else:
-            r = raw_input('Enter a ID(number) for pakage: ')
+            r = raw_input('Enter a ID(number) for package: ')
         if r.isdigit():
             r = int(r)
         else:
