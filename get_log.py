@@ -67,11 +67,20 @@ def get_dmesg_log():
 def get_anr_log():
     '''
     获取ANR log，将/data/anr目录下的所有文件都pull到指定目录。
+    ANR: Application Not Responding，即应用无响应
     '''
     logger.info('Getting for <ANR> log ......')
     cmd = 'adb pull /data/anr/ {}/'.format(local_path)
     os.system(cmd)
 
+
+def get_tombstones_log():
+    '''
+    获取tombstones log，将/data/tombstones目录下的所有文件都pull到指定目录。
+    '''
+    logger.info('Getting for <tombstones> log ......')
+    cmd = 'adb pull /data/tombstones/ {}/'.format(local_path)
+    os.system(cmd)
 
 def getbugreport():
     '''
