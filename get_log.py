@@ -108,7 +108,7 @@ def main():
     # 获取ANR log
     if get_anr_log() != 0:
         logger.info("done!")
-    # 获取tombstone log
+    # 获取tombstones目录下的log
     if get_tombstones_log() != 0:
         logger.info("done!")
     # 获取bugreport
