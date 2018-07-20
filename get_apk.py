@@ -84,7 +84,8 @@ def pull_apk(pkg_name):
     # 本地保存apk路径
     local_path = sys.path[0] + '/apk/'
     # 创建目录
-    os.makedirs(local_path)
+    if not os.path.exists(local_path):
+        os.makedirs(local_path)
     # 定义拖出后的本地路径和名称，这里以包名进行命名
     local_name = local_path + pkg_name + '.apk'
     # 生成最终adb命令，并执行adb pull命令
