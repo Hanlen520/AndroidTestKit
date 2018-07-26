@@ -10,18 +10,17 @@ import sys
 class screencap:
     
     localTime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-    remote_obj = '/sdcard/%s.png' % localTime
-    local_obj = sys.path[0]
+    remote_path = '/sdcard'
 
-    def capture(self):
-        a = 'adb shell screencap -p %s' % self.remote_obj
-        c = 'adb pull %s %s' % (self.remote_obj, self.local_obj)
+    def capture(self, local_path=sys.path[0]):
+        
+        cmd_snap = 'adb shell screencap -p %s/1.png' % self.remote_path
+        cmd_pull_png = 'adb pull %s/1.png %s/%s.png' % (self.remote_path, local_path, self.localTime)
 
-        os.system(a)
-        # print 'Screen capture saved to {}'.format(remote_obj)
+        os.system(cmd_snap)
         print('Pull picture to your computer ...')
-        os.system(c)
-        print('Screen capture pull to: "{}"'.format(self.local_obj))
+        os.system(cmd_pull_png)
+        # print('Screen capture pull to: "{}"'.format(local_path))
         print('OK.')
 
 def main():
