@@ -105,6 +105,7 @@ def main():
     '''
     os.system('adb wait-for-device')
     os.system('adb remount')
+    os.system('adb root') # userdebug 固件需要此命令才能取到kernel log和tombstones log
     get = GetLogs()
     get.logcat()
     get.anr_log()
