@@ -94,8 +94,8 @@ class GetLogs:
         Android 7.x之后可以使用"adb bugreport +path"导出zip包，但会与早期Android版本不兼容
         '''
         logger.info('Getting <bugreport> log ......')
-        # 因此暂时不考虑使用zip包方式导出Bugreport
-        cmd = 'adb shell bugreport > {}/bugreport.txt'.format(self.local_path)
+        # 导出Bugreport(zip)
+        cmd = 'adb bugreport {}'.format(self.local_path)
         os.system(cmd)
 
 
