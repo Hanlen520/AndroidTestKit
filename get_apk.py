@@ -1,11 +1,14 @@
 # -*- coding:utf-8 -*-
 # Author: Kevin.Zhang
 # E-Mail: testcn@vip.qq.com
+'''
+'''
 
-import os
+import re
 import subprocess
-import sys
 import logging
+import sys
+import os
 
 # 获取Python主版本号，int型
 py_ver_info = sys.version_info.major
@@ -33,106 +36,81 @@ logger.addHandler(ch)
 # -------------------------------*logger*-------------------------------
 
 
-adb_shell = 'adb shell'
-apk_path = 'adb shell pm path'
+class get_apk:
+    '''
+    get_pkg_list: 获取最近启动过的应用列表
+    pull_apk: 使用adb命令推出到指定路径
+    '''
 
+    def get_pkg_list(self):
+        cmd = 'adb logcat -d ActivityManager:I *:s'
+        p = subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        lst = p.stdout.readlines()
+        pkg_list = []  # test
+        pattern = re.compile('(.*)START(.*)cmp=(.*)\/')
+        for i in reversed(lst):
+            x = i.decode(encoding='utf-8', errors='strict')
+            m = pattern.match(x)
+            if m:
+                pkg_name = m.groups()[-1]
+                # print('m: ', pkg_name)
+                if pkg_name not in pkg_list:
+                    pkg_list.append(pkg_name)
+        print('Package Name: ', pkg_list)
+        return pkg_list
 
-# 根据包名获取apk路径
-def get_pkg_path(x):
-    cmd = ['adb', 'shell', 'pm', 'path', x]
-    pkg = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
-    # 等待进行完成
-    if pkg.wait() != 0:
-        logger.info("There were some errors")
-    # 处理数据，将结果中的包名取出，并去掉换行符，因返回数据只有一行所以读取时只读一行
-    # 只使用readline
-    if py_ver_info == 3:
-        path = str(pkg.stdout.readline(), "utf-8")
-    else:
-        path = pkg.stdout.readline()
-    pkg_path = path.split(':')[1].strip()
-    logger.info('Package path is :%s' % (pkg_path))
-    # 返回一个列表
-    return pkg_path
-
-
-# 通过adb shell pm list packages获取设备中的所有包名
-def get_pkg_list(keyword):
-    if keyword == '':
-        cmd = ['adb', 'shell', 'pm list package']
-    else:
-        cmd = ['adb', 'shell', 'pm list package | grep {}'.format(keyword)]
-    get_pkg_info = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    # 读取所有数据，返回一个列表，Python3中元素为字节类型，Python2中元素为字符串口
-    pkgs = get_pkg_info.stdout.readlines()
-    # 定义一个空列表，将原始数据中的"package:"和换行符去除后放入此列表。
-    pkg_list = []
-    for name in pkgs:
-        if py_ver_info == 3:
-            name = str(name, 'utf-8')
-        pkg_name = name.split(':')[1].strip()
-        pkg_list.append(pkg_name)
-    return pkg_list
-
-
-# 拖出apk
-def pull_apk(pkg_name):
     # 根据包名获取apk路径
-    pkg_path = get_pkg_path(pkg_name)
-    # 本地保存apk路径
-    local_path = sys.path[0] + '/apk/'
-    # 创建目录
-    if not os.path.exists(local_path):
-        os.makedirs(local_path)
-    # 定义拖出后的本地路径和名称，这里以包名进行命名
-    local_name = local_path + pkg_name + '.apk'
-    # 生成最终adb命令，并执行adb pull命令
-    pull_cmd = ['adb', 'pull', pkg_path, local_name]
-    subprocess.check_call(pull_cmd)
-
-
-if __name__ == '__main__':
-    logger.info('Wait for device:')
-    os.system('adb root')
-    os.system('adb wait-for-device')
-    logger.info('Device is fond.')
-    # 循环判断关键字规则
-    while True:
-        # 输入一个包名中可能的关键字，可以方便过滤一部分应用
+    def pull_apk(self, pkg_name):
+        get_path_cmd = 'adb shell pm path {}'.format(pkg_name)
+        pkg = subprocess.Popen(get_path_cmd, shell=True, stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT)
         if py_ver_info == 3:
-            keyword = input('Enter a "keyword" for package name: ')
-        elif py_ver_info == 2:
-            keyword = raw_input('Enter a "keyword" for package name: ')
-        pkg_list = get_pkg_list(keyword)
-        if pkg_list == []:
-            logger.info('Nothing!!!')
+            path = str(pkg.stdout.readline(), "utf-8")
         else:
-            logger.info('Something is fond.')
-            break
+            path = pkg.stdout.readline()
+        pkg_path = path.split(':')[1].strip()
+        # 本地保存apk路径
+        self.local_path = sys.path[0] + '/apk/'
+        # 创建目录
+        if not os.path.exists(self.local_path):
+            os.makedirs(self.local_path)
+        # 定义拖出后的本地路径和名称，这里以包名进行命名
+        local_name = self.local_path + pkg_name + '.apk'
+        # 生成最终adb命令，并执行adb pull命令
+        pull_cmd = 'adb pull {REMOTE} {LOCAL}'.format(
+            REMOTE=pkg_path, LOCAL=local_name)
+        run_pull = subprocess.Popen(
+            pull_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout = run_pull.stdout.readlines()
+        print(bytes.decode(stdout[-2]).strip())
+        print(bytes.decode(stdout[-1]).strip())
+
+
+def main():
+    pkg_list = get_apk().get_pkg_list()
+    logger.info("最近启动过的应用列表：")
     for m, n in enumerate(pkg_list):
         logger.info("{id} --- {pkgname}".format(id=m, pkgname=n))
-    # 循环判断输入ID规则
     while True:
-        logger.info('You enter in is not a number.')
-        # r = input('Enter a ID(number) for package: ')
-        # 判断输入是否为数字，如果不是数字则跳出本次循环
-        if py_ver_info == 3:
-            r = input('Enter a ID(number) for package: ')
-        else:
-            r = raw_input('Enter a ID(number) for package: ')
-        if r.isdigit():
-            r = int(r)
-        else:
-            continue
-        # 判断输入的数字，是否在引用范围之内，如果是则跳出循环，如果否则要求继续输入
-        if r < len(pkg_list):
-            logger.info('You choice is: [%s] --- %s' % (r, pkg_list[r]))
-            break
-    # 判断异常
+        keyword = input('Enter a ID(number) for package: ')
+        if isinstance(keyword, int):  # 判断是否为int型，Python2中input为int型
+            if keyword < len(pkg_list):  # 判断输入的数字，是否超出范围之内
+                break
+        if isinstance(keyword, str):  # 判断是否为str型，Python3中input为str型
+            keyword = int(keyword)
+            if keyword < len(pkg_list):
+                break
+        else:  # 其它所有非int型都需要重新输入
+            continue  # 进入下一个循环
+    logger.info(
+        'You choice is: {id} --- {pkg_name}'.format(id=keyword, pkg_name=pkg_list[keyword]))
     try:
-        pull_apk(pkg_list[r])
+        get_apk().pull_apk(pkg_list[keyword])
     except Exception as e:
         logger.exception('Exception: %s, %s' % (Exception, e))
         logger.info('Try again and enter a number.')
+
+
+if __name__ == '__main__':
+    main()
