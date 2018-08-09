@@ -87,7 +87,15 @@ class GetLogs:
         logger.info('Getting for <tombstones> log ......')
         cmd = 'adb pull /data/tombstones/ {}/'.format(self.local_path)
         os.system(cmd)
-    
+
+    def misc_logd(self):
+        '''
+        获取/data/misc/logd目录下的所有文件, pull到指定目录。
+        '''
+        logger.info('Getting for <misc_logd> log ......')
+        cmd = 'adb pull /data/misc/logd {}/'.format(self.local_path)
+        os.system(cmd)
+
     def bugreport(self):
         '''
         获取bugreport log
@@ -111,6 +119,7 @@ def main():
     get.anr_log()
     get.dmesg_log()
     get.tombstones_log()
+    get.misc_logd()
     get.bugreport()
     screencap().capture(get.local_path)
     logger.info('Has been saved to [%s]'% get.local_path)
