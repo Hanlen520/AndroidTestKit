@@ -43,10 +43,12 @@ class GetLogs:
         4. tombstones
         5. bugreport
     '''
+
     def __init__(self):
-        self.localtime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+        self.localtime = time.strftime(
+            '%Y%m%d%H%M%S', time.localtime(time.time()))
         self.local_path = sys.path[0] + "/log/" + self.localtime
-        self.loglst = ['all', 'system', 'radio', 'events', 'main','crash']
+        self.loglst = ['all', 'system', 'radio', 'events', 'main', 'crash']
         if not os.path.exists(self.local_path):
             os.makedirs(self.local_path)
 
@@ -57,12 +59,14 @@ class GetLogs:
         '''
         for logname in self.loglst:
             os.system('adb shell "rm /sdcard/logcat-{}.log"'.format(logname))
-            cmd = 'adb shell "logcat {} -d >/sdcard/logcat-{}.log"'.format(logname, logname)
+            cmd = 'adb shell "logcat {} -d >/sdcard/logcat-{}.log"'.format(
+                logname, logname)
             logger.info('Getting <logcat> log ......')
             # 保存log到文件（如果文件存在会直接覆盖）
             os.system(cmd)
             # 将log文件取出到本地
-            os.system('adb pull /sdcard/logcat-{}.log {}'.format(logname, self.local_path))
+            os.system(
+                'adb pull /sdcard/logcat-{}.log {}'.format(logname, self.local_path))
 
     def dmesg_log(self):
         '''
@@ -70,7 +74,7 @@ class GetLogs:
         '''
         logger.info('Getting for <Kernel> log ......')
         os.system('adb shell dmesg > {}/Kernel.txt'.format(self.local_path))
-    
+
     def anr_log(self):
         '''
         获取ANR log，将/data/anr目录下的所有文件都pull到指定目录。
@@ -87,7 +91,15 @@ class GetLogs:
         logger.info('Getting for <tombstones> log ......')
         cmd = 'adb pull /data/tombstones/ {}/'.format(self.local_path)
         os.system(cmd)
-    
+
+    def misc_logd(self):
+        '''
+        获取/data/misc/logd目录下的所有文件, pull到指定目录。
+        '''
+        logger.info('Getting for <misc_logd> log ......')
+        cmd = 'adb pull /data/misc/logd {}/'.format(self.local_path)
+        os.system(cmd)
+
     def bugreport(self):
         '''
         获取bugreport log
@@ -105,15 +117,16 @@ def main():
     '''
     os.system('adb wait-for-device')
     os.system('adb remount')
-    os.system('adb root') # userdebug 固件需要此命令才能取到kernel log和tombstones log
+    os.system('adb root')  # userdebug 固件需要此命令才能取到kernel log和tombstones log
     get = GetLogs()
     get.logcat()
     get.anr_log()
     get.dmesg_log()
     get.tombstones_log()
+    get.misc_logd()
     get.bugreport()
     screencap().capture(get.local_path)
-    logger.info('Has been saved to [%s]'% get.local_path)
+    logger.info('Has been saved to [%s]' % get.local_path)
 
 
 if __name__ == '__main__':
