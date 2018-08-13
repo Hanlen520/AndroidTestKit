@@ -108,11 +108,42 @@ class get_apk:
         run_pull = subprocess.Popen(
             pull_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout = run_pull.stdout.readlines()
-        print(bytes.decode(stdout[-2]).strip())
-        print(bytes.decode(stdout[-1]).strip())
+        logger.info(bytes.decode(stdout[-2]).strip())
+        logger.info(bytes.decode(stdout[-1]).strip())
+        logger.info('重命名apk ......')
+        self.rename_pkg_to_label(local_name)
+        logger.info('完成。')
 
-    def rename(self):
-        pass
+    # 将apk的 package name 重命名为Application label
+    def rename_pkg_to_label(self, apk_path):
+        aapt_badging = './resource/aapt dump badging '
+        get_app_info_cmd = aapt_badging + apk_path
+        run = subprocess.Popen(
+            get_app_info_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout = run.stdout.readlines()
+        # 正则匹配application label
+        app_label_pattern = re.compile("application-label:'(.*)'")
+        # 正则匹配version name
+        app_version_pattern = re.compile(
+            "(.*)versionName='(.*)' platformBuildVersionName='(.*)'")
+        app_info = {}
+        # 遍历aapt dump badging结果的每一行
+        for i in stdout:
+            x = i.decode(encoding='utf-8', errors='strict')
+            app_version = app_version_pattern.match(x)
+            app_label = app_label_pattern.match(x)
+            if app_version:
+                app_info['VersionName'] = app_version.groups()[-2]
+                # print('VersionName: ', app_info['VersionName'])
+            elif app_label:
+                app_info['ApplicationLabel'] = app_label.groups()[-1]
+                # print('ApplicationLabel: ', app_info['ApplicationLabel'])
+        src = apk_path
+        dst = self.local_path + app_info['ApplicationLabel'] + '_' + app_info['VersionName'] + '.apk'
+        # print('src: ',src)
+        # print('dst: ',dst)
+        os.rename(src, dst)
+
 
 
 def main():
