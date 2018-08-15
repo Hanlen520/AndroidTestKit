@@ -33,6 +33,8 @@ ch.setFormatter(formatter)
 # 给logger添加handler
 logger.addHandler(fh)
 logger.addHandler(ch)
+
+
 # -------------------------------*logger*-------------------------------
 
 
@@ -138,12 +140,10 @@ class get_apk:
             elif app_label:
                 app_info['ApplicationLabel'] = app_label.groups()[-1]
                 # print('ApplicationLabel: ', app_info['ApplicationLabel'])
-        src = apk_path
-        dst = self.local_path + app_info['ApplicationLabel'] + '_' + app_info['VersionName'] + '.apk'
-        # print('src: ',src)
-        # print('dst: ',dst)
-        os.rename(src, dst)
-
+        label = app_info['ApplicationLabel'].replace(" ", "_")
+        version = app_info['VersionName'].replace(" ", "_")
+        dst = self.local_path + label + '_' + version + '.apk'
+        os.rename(apk_path, dst)
 
 
 def main():
