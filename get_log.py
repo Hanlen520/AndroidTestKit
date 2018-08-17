@@ -97,7 +97,16 @@ class GetLogs:
         获取/data/misc/logd目录下的所有文件, pull到指定目录。
         '''
         logger.info('Getting for <misc_logd> log ......')
-        cmd = 'adb pull /data/misc/logd {}/'.format(self.local_path)
+        cmd = 'adb pull /data/misc/logd {}/misc/'.format(self.local_path)
+        os.system(cmd)
+
+    def misc_bluetooth(self):
+        '''
+        获取/data/misc/bluetooth目录下的所有文件, pull到指定目录。
+        与蓝牙相关的问题需要提供此log。
+        '''
+        logger.info('Getting for <misc_bluetooth> log ......')
+        cmd = 'adb pull /data/misc/bluetooth {}/misc/'.format(self.local_path)
         os.system(cmd)
 
     def bugreport(self):
