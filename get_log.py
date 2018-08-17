@@ -133,6 +133,7 @@ def main():
     get.dmesg_log()
     get.tombstones_log()
     get.misc_logd()
+    get.misc_bluetooth()
     get.bugreport()
     screencap().capture(get.local_path)
     logger.info('Has been saved to [%s]' % get.local_path)
