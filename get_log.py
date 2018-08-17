@@ -36,7 +36,7 @@ logger.addHandler(ch)
 
 class GetLogs:
     '''
-    Get logs:
+    Get HCI_rec_logs:
         1. logcat
         2. kernel
         3. anr
@@ -59,7 +59,7 @@ class GetLogs:
         '''
         for logname in self.loglst:
             os.system('adb shell "rm /sdcard/logcat-{}.log"'.format(logname))
-            cmd = 'adb shell "logcat {} -d >/sdcard/logcat-{}.log"'.format(
+            cmd = 'adb shell "logcat -b {} -d >/sdcard/logcat-{}.log"'.format(
                 logname, logname)
             logger.info('Getting <logcat> log ......')
             # 保存log到文件（如果文件存在会直接覆盖）
