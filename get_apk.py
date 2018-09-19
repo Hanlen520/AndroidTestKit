@@ -14,7 +14,7 @@ import os
 py_ver_info = sys.version_info.major
 # -------------------------------*logger*-------------------------------
 # 创建一个logger
-logger = logging.getLogger('GETLOG')
+logger = logging.getLogger('GETAPK')
 logger.setLevel(logging.DEBUG)
 
 # # 创建一个handler，用于写入日志文件
@@ -118,7 +118,10 @@ class get_apk:
 
     # 将apk的 package name 重命名为Application label
     def rename_pkg_to_label(self, apk_path):
-        aapt_badging = './resource/aapt dump badging '
+        if 'win' in sys.platform:
+            aapt_badging = sys.path[0] + '/resource/aapt dump badging '
+        else:
+            aapt_badging = sys.path[0] + '/resource/aapt.exe dump badging '
         get_app_info_cmd = aapt_badging + apk_path
         run = subprocess.Popen(
             get_app_info_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
