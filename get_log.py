@@ -129,13 +129,15 @@ def main():
     os.system('adb root')  # userdebug 固件需要此命令才能取到kernel log和tombstones log
     get = GetLogs()
     get.logcat()
-    get.anr_log()
     get.dmesg_log()
-    get.tombstones_log()
-    get.misc_logd()
-    get.misc_bluetooth()
-    get.bugreport()
+    # # 默认关闭以下log的获取，因为在获取Bugreport时会自动获取/data/misc目录下的log
+    # get.anr_log()
+    # get.tombstones_log()
+    # get.misc_logd()
+    # get.misc_bluetooth()
+
     screencap().capture(get.local_path)
+    get.bugreport()
     logger.info('Has been saved to [%s]' % get.local_path)
 
 
