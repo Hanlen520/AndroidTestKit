@@ -74,6 +74,8 @@ class GetLogs:
         '''
         logger.info('Getting for <Kernel> log ......')
         os.system('adb shell dmesg > {}/Kernel.txt'.format(self.local_path))
+        # from /data/vendor/kmsgd get kernel log
+        os.system('adb pull /data/vendor/kmsgd {}'.format(self.local_path))
 
     def anr_log(self):
         '''
