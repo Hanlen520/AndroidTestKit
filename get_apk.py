@@ -1,8 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author: Kevin.Zhang
 # E-Mail: testcn@vip.qq.com
-'''
-'''
 
 import re
 import subprocess
@@ -112,12 +110,16 @@ class get_apk:
         stdout = run_pull.stdout.readlines()
         logger.info(bytes.decode(stdout[-2]).strip())
         logger.info(bytes.decode(stdout[-1]).strip())
-        logger.info('重命名apk ......')
-        self.rename_pkg_to_label(local_name)
-        logger.info('完成。')
+        # rename
+        logger.info('Renaming this apk ......')
+        apkLabel, apkVersion = self.aapt_dump_badging(local_name)
+        newName = self.local_path + apkLabel + '_' + apkVersion +'_' + pkg_name + '.apk'
+        os.rename(local_name, newName)
+        logger.info('Work done.')
 
-    # 将apk的 package name 重命名为Application label
-    def rename_pkg_to_label(self, apk_path):
+    # Add apk's Application label to the filename.
+    def aapt_dump_badging(self, apk_path):
+        # Check the system, because different systems use different tools
         if 'win' in sys.platform:
             aapt_badging = sys.path[0] + '/resource/aapt dump badging '
         else:
@@ -145,8 +147,9 @@ class get_apk:
                 # print('ApplicationLabel: ', app_info['ApplicationLabel'])
         label = app_info['ApplicationLabel'].replace(" ", "_")
         version = app_info['VersionName'].replace(" ", "_")
-        dst = self.local_path + label + '_' + version + '.apk'
-        os.rename(apk_path, dst)
+        # dst = self.local_path + label + '_' + version + '.apk'
+        # os.rename(apk_path, dst)
+        return (label, version)
 
 
 def main():
