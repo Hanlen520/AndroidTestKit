@@ -107,17 +107,24 @@ class get_apk:
         # 生成最终adb命令，并执行adb pull命令
         pull_cmd = 'adb pull {REMOTE} {LOCAL}'.format(
             REMOTE=pkg_path, LOCAL=local_name)
+        print(pull_cmd)
+        print(sys.path[0])
         run_pull = subprocess.Popen(
             pull_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout = run_pull.stdout.readlines()
         logger.info(bytes.decode(stdout[-2]).strip())
         logger.info(bytes.decode(stdout[-1]).strip())
         logger.info('重命名apk ......')
-        self.rename_pkg_to_label(local_name)
+        # self.rename_pkg_to_label(local_name)
+        apkLabel, apkVersion = self.aapt_dump_badging(local_name)
+        newName = apkLabel+ '_' + apkVersion +'_' + pkg_name + '.apk'
+        print(local_name, newName)
+        os.rename(local_name, newName)
         logger.info('完成。')
 
-    # 将apk的 package name 重命名为Application label
-    def rename_pkg_to_label(self, apk_path):
+    # Add apk's Application label to the filename.
+    def aapt_dump_badging(self, apk_path):
+        # Check the system, because different systems use different tools
         if 'win' in sys.platform:
             aapt_badging = sys.path[0] + '/resource/aapt dump badging '
         else:
@@ -145,8 +152,9 @@ class get_apk:
                 # print('ApplicationLabel: ', app_info['ApplicationLabel'])
         label = app_info['ApplicationLabel'].replace(" ", "_")
         version = app_info['VersionName'].replace(" ", "_")
-        dst = self.local_path + label + '_' + version + '.apk'
-        os.rename(apk_path, dst)
+        # dst = self.local_path + label + '_' + version + '.apk'
+        # os.rename(apk_path, dst)
+        return (label, version)
 
 
 def main():
@@ -159,3 +167,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # os.rename("/Users/zhangshuaiju/MySpace/Codespace/GitHub/AndroidTestKit/apk/com.skype.raider.apk", "Skype_8.31.0.92_com.skype.raider.apk")
