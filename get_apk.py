@@ -49,7 +49,8 @@ class get_apk:
         if not os.path.exists(self.local_path):
             os.makedirs(self.local_path)
 
-    def get_pkg_list(self):
+
+    def pkgs_of_recent(self):
         cmd = 'adb logcat -d ActivityManager:I *:s'
         p = subprocess.Popen(
             cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -61,14 +62,9 @@ class get_apk:
             m = pattern.match(x)
             if m:
                 pkg_name = m.groups()[-1]
-                # print('m: ', pkg_name)
-                if pkg_name not in pkg_list:
+                if "/" not in pkg_name and pkg_name not in pkg_list:
                     pkg_list.append(pkg_name)
-        # print('Package Name: ', pkg_list)
-        return pkg_list
 
-    def get_pkg_name(self):
-        pkg_list = self.get_pkg_list()
         logger.info("最近启动过的应用列表：")
         for m, n in enumerate(pkg_list):
             logger.info("{id} --- {pkgname}".format(id=m, pkgname=n))
@@ -85,37 +81,49 @@ class get_apk:
                 continue  # 进入下一个循环
         logger.info(
             'You choice is: {id} --- {pkg_name}'.format(id=keyword, pkg_name=pkg_list[keyword]))
-        return pkg_list[keyword]
+        return [pkg_list[keyword]]
+
+    # all of the third party packages, reture a list.
+    def pkgs_of_third_party(self):
+        pkgNames = []
+        cmd = 'adb shell cmd package list packages -3'
+        run = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        names = run.stdout.readlines()
+        for n in names:
+            name = n.decode(encoding='utf-8', errors='strict')
+            name = name.split(':')[1].strip()
+            pkgNames.append(name)
+        return pkgNames
 
     # 根据包名获取apk路径
-    def pull_apk(self, pkg_name='recent'):
-        if pkg_name is 'recent':
-            pkg_name = self.get_pkg_name()
-        get_path_cmd = 'adb shell pm path {}'.format(pkg_name)
-        pkg = subprocess.Popen(get_path_cmd, shell=True, stdout=subprocess.PIPE,
+    def pull_apk(self, pkgs):
+        for pkg in pkgs:
+            get_path_cmd = 'adb shell pm path {}'.format(pkg)
+            pkgPath = subprocess.Popen(get_path_cmd, shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT)
-        if py_ver_info == 3:
-            path = str(pkg.stdout.readline(), "utf-8")
-        else:
-            path = pkg.stdout.readline()
-        pkg_path = path.split(':')[1].strip()
-        # print(self.local_path, pkg_name)
-        # 定义拖出后的本地路径和名称，这里以包名进行命名
-        local_name = self.local_path + pkg_name + '.apk'
-        # 生成最终adb命令，并执行adb pull命令
-        pull_cmd = 'adb pull {REMOTE} {LOCAL}'.format(
-            REMOTE=pkg_path, LOCAL=local_name)
-        run_pull = subprocess.Popen(
-            pull_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout = run_pull.stdout.readlines()
-        logger.info(bytes.decode(stdout[-2]).strip())
-        logger.info(bytes.decode(stdout[-1]).strip())
-        # rename
-        logger.info('Renaming this apk ......')
-        apkLabel, apkVersion = self.aapt_dump_badging(local_name)
-        newName = self.local_path + apkLabel + '_' + apkVersion +'_' + pkg_name + '.apk'
-        os.rename(local_name, newName)
-        logger.info('Work done.')
+            if py_ver_info == 3:
+                path = str(pkgPath.stdout.readline(), "utf-8")
+            else:
+                path = pkgPath.stdout.readline()
+            pkgPath = path.split(':')[1].strip()
+
+            # 定义拖出后的本地路径和名称，这里以包名进行命名
+            local_name = self.local_path + pkg + '.apk'
+            # 生成最终adb命令，并执行adb pull命令
+            pull_cmd = 'adb pull {REMOTE} {LOCAL}'.format(
+                REMOTE=pkgPath, LOCAL=local_name)
+            run_pull = subprocess.Popen(
+                pull_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout = run_pull.stdout.readlines()
+            for st in stdout:
+                logger.info(bytes.decode(st).strip())
+                # logger.info(bytes.decode(st).strip())
+            # rename
+            logger.info('Renaming this apk ......')
+            apkLabel, apkVersion = self.aapt_dump_badging(local_name)
+            newName = self.local_path + apkLabel + '_' + apkVersion +'_' + pkg + '.apk'
+            os.rename(local_name, newName)
+            logger.info('Work done.')
 
     # Add apk's Application label to the filename.
     def aapt_dump_badging(self, apk_path):
@@ -141,23 +149,34 @@ class get_apk:
             app_label = app_label_pattern.match(x)
             if app_version:
                 app_info['VersionName'] = app_version.groups()[-2]
-                # print('VersionName: ', app_info['VersionName'])
             elif app_label:
                 app_info['ApplicationLabel'] = app_label.groups()[-1]
-                # print('ApplicationLabel: ', app_info['ApplicationLabel'])
         label = app_info['ApplicationLabel'].replace(" ", "_")
         version = app_info['VersionName'].replace(" ", "_")
-        # dst = self.local_path + label + '_' + version + '.apk'
-        # os.rename(apk_path, dst)
         return (label, version)
 
 
 def main():
-    try:
-        get_apk().pull_apk()
-    except Exception as e:
-        logger.exception('Exception: %s, %s' % (Exception, e))
-        logger.info('Try again and enter a number.')
+    logger.info('1. Pull apk of RECENT;')
+    logger.info('2. Pull apks all of the third party;')
+
+    keyword = input('Enter a ID(number) : ')
+    if not isinstance(keyword, int):
+        try:
+            keyword = int(keyword)
+        except:
+            logger.info('Wrong enter, please re-enter! ')
+
+    if keyword not in [1, 2]:  # 判断输入的数字，是否超出范围之内
+        logger.info('Wrong enter, please re-enter! ')
+    elif keyword == 1:
+        logger.info('You picked: {id}'.format(id=keyword))
+        pkgs = get_apk().pkgs_of_recent()
+        get_apk().pull_apk(pkgs)
+    elif keyword == 2:
+        logger.info('You picked: {id}'.format(id=keyword))
+        pkgs = get_apk().pkgs_of_third_party()
+        get_apk().pull_apk(pkgs)
 
 
 if __name__ == '__main__':
