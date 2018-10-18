@@ -1,6 +1,15 @@
 # Version log
 
-## version 0.1.1 - 2018.07.25
+## version 2.0.0 - 2018.10.18
+
+    1. 支持一次性提取所有第三方安装的apk（非系统内置）
+    2. 支持提取最近使用过的apk
+    3. 对提取出的apk进行命名，不再只显示包名（如：Quora_2.7.23_com.quora.android.apk）
+    4. 新增autoInstallApk脚本，在脚本指定路径后，可遍历安装所有目录下的apk（不含子目录）
+    5. 注释掉anr和tombstones的获取，因为在导出Bugreport时已经包含
+    6. 其它稳定性优化
+    
+## version 1.1.1 - 2018.07.25
 
     1. 增加抓取log后截图
     2. 优化代码面向对象
