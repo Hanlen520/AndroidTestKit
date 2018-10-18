@@ -11,6 +11,34 @@ git clone git@github.com:kevin-zsj/AndroidTestKit.git
 cd AndroidTestKit
 python xxx.py
 ```
+#### Get Apks
+Run script:
+```commandline
+python ./get_apk.py
+```
+Enter a number:
+```text
+2018-10-18 16:48:18,344 GETAPK INFO 1. Pull apk of RECENT;
+2018-10-18 16:48:18,345 GETAPK INFO 2. Pull apks all of the third party;
+Enter a ID(number) :
+```
+
+#### Get Logs
+Run script:
+```commandline
+python ./get_log.py
+```
+
+#### Auto Install
+
+Set apks path, like as:
+```python
+apksPath = '/Users/test/apks/'
+```
+Run script:
+```commandline
+python ./autoInstallApk.py
+```
 
 ## Author
 
